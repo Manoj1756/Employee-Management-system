@@ -1,0 +1,8 @@
+{
+  "/auth": {
+    "target": "https://192.168.56.132",
+    "changeOrigin": true,
+    "secure": false,
+    "logLevel": "debug"
+  }
+}
