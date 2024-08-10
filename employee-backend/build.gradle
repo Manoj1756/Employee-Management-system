@@ -1,0 +1,85 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version "${springBootVersion}"
+	id 'io.spring.dependency-management' version '1.1.5'
+	id 'org.hibernate.orm' version '6.5.2.Final'
+	id 'org.graalvm.buildtools.native' version '0.10.2'
+}
+
+group = 'io.github.kprasad99'
+version = '1.0.0-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+  implementation 'org.springframework.boot:spring-boot-starter-webflux'
+  implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+  implementation 'org.flywaydb:flyway-core'
+  implementation 'org.flywaydb:flyway-database-postgresql'
+  compileOnly 'org.projectlombok:lombok'
+  developmentOnly 'org.springframework.boot:spring-boot-devtools'
+  runtimeOnly 'com.h2database:h2'
+  runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+  runtimeOnly 'org.postgresql:postgresql'
+  annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+  annotationProcessor 'org.projectlombok:lombok'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'io.projectreactor:reactor-test'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+hibernate {
+  enhancement {
+    enableAssociationManagement = true
+  }
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+bootRun {
+    systemProperties = System.properties
+}
+
+bootJar {
+    archiveFileName = "${project.name}.jar"
+    layered {
+		enabled = true
+	}
+}
+
+graalvmNative {
+	binaries {
+        main {
+            javaLauncher = javaToolchains.launcherFor {
+                languageVersion = JavaLanguageVersion.of(21)
+                vendor = JvmVendorSpec.matching("Oracle Corporation")
+            }
+            // GraalVM Enterprise only https://www.graalvm.org/22.0/reference-manual/native-image/Options/
+            // buildArgs.add('--pgo')
+            // buildArgs.add('--gc=G1')
+		// 	buildArgs.add('--trace-class-initialization=ch.qos.logback.classic.Logger')
+      	// 	buildArgs.add('--trace-object-instantiation=ch.qos.logback.core.AsyncAppenderBase$Worker')
+      	// 	buildArgs.add('--initialize-at-build-time=org.slf4j.LoggerFactory,ch.qos.logback')
+		// //	buildArgs.add('--initialize-at-run-time=io.micrometer.common.util.internal.logging.LocationAwareSlf4JLogger')
+        }
+    }
+}
